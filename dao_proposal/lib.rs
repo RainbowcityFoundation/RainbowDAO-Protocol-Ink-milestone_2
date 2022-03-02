@@ -325,7 +325,7 @@ mod dao_proposal {
         pub fn exec(&mut self, proposal_id: u64) -> bool {
             let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
             assert!(self.state(proposal_id) == ProposalState::Queued);
-            let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
+            build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
                 .callee(proposal.transaction.callee)
                 .gas_limit(proposal.transaction.gas_limit)
                 .transferred_value(proposal.transaction.transferred_value)

@@ -137,7 +137,7 @@ mod dao_setting {
         /// We test a simple use case of our contract.
         #[ink::test]
         fn it_works() {
-            let mut dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
+            let  dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
             assert!(dao_setting.get_conditions() == 0);
         }
     }
