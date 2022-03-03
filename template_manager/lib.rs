@@ -139,14 +139,16 @@ mod template_manager {
         /// We test a simple use case of our contract.
         #[ink::test]
         fn it_works() {
-            let mut dao_users = DaoUsers::new(AccountId::from([0x01; 32]));
-            assert!(dao_users.add_group(Group {id:0,
-                name:String::from("test"),
-                join_directly:true,
-                is_open:true,
-                users:BTreeMap::new(),
-                manager:AccountId::from([0x01; 32])
-            }) == true);
+            let mut template_manager = TemplateManager::new(AccountId::from([0x01; 32]));
+            assert!(template_manager.add_template(
+                String::from("test"),
+                Hash::from([0x99; 32]),
+                Hash::from([0x99; 32]),
+                Hash::from([0x99; 32]),
+                Hash::from([0x99; 32]),
+                Hash::from([0x99; 32]),
+                Hash::from([0x99; 32])
+            ) == true);
         }
     }
 }
