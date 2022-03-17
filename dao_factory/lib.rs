@@ -206,7 +206,7 @@ mod dao_factory {
         #[ink::test]
         fn it_works() {
             let mut dao_factory = DaoFactory::new();
-            assert!(dao_factory.joined_dao() == true);
+            assert!(dao_factory.joined_dao(0) == true);
         }
     }
 }

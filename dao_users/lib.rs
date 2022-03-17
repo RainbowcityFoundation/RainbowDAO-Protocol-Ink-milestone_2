@@ -218,7 +218,7 @@ mod dao_users {
         #[ink::test]
         fn it_works() {
             let mut dao_users = DaoUsers::new(AccountId::from([0x01; 32]));
-            assert!(dao_users.add_group(String::from("test"),true,true) == true);
+            assert!(dao_users.add_group(String::from("test"),true,true,AccountId::from([0x01; 32])) == true);
         }
     }
 }
