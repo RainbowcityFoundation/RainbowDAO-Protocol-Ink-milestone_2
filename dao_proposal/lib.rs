@@ -1,5 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(feature = "nightly", feature(const_fn_trait_bound))]
+#![feature(const_fn_trait_bound)]
 extern crate alloc;
 pub use self::dao_proposal::DaoProposal;
 
