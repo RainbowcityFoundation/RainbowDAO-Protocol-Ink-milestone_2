@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(const_fn_trait_bound)]
 extern crate alloc;
 pub use self::dao_proposal::DaoProposal;
 

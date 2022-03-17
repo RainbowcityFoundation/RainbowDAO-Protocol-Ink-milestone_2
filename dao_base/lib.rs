@@ -1,10 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(const_fn_trait_bound)]
+
 extern crate alloc;
 use ink_lang as ink;
 pub use self::dao_base::DaoBase;
 
 #[allow(unused_imports)]
 #[ink::contract]
+
 mod dao_base {
     use alloc::string::String;
     use ink_storage::{

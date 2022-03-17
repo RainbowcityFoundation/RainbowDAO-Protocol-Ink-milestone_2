@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(const_fn_trait_bound)]
 extern crate alloc;
 use ink_lang as ink;
 pub use self::dao_setting::{
@@ -137,7 +138,7 @@ mod dao_setting {
         /// We test a simple use case of our contract.
         #[ink::test]
         fn it_works() {
-            let  dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
+            let mut dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
             assert!(dao_setting.get_conditions() == 0);
         }
     }
