@@ -364,7 +364,8 @@ mod dao_proposal {
             let caller = Self::env().caller();
             assert!(self.state(proposal_id) == ProposalState::Active);
             let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
-            let mut receipts = proposal.receipts.get(&caller).unwrap().clone();
+            let default_receipt = Receipt{has_voted:false, support: false, votes:0};
+            let mut receipts = proposal.receipts.get(&caller).unwrap_or(&default_receipt).clone();
             assert!(receipts.has_voted == false);
             let erc20_instance: Erc20 = ink_env::call::FromAccountId::from_account_id(self.erc20_addr);
             let votes = erc20_instance.get_current_votes(caller);
