@@ -117,26 +117,17 @@ mod dao_users {
         /// join the dao
         #[ink(message)]
         pub fn join(&mut self) ->bool {
+            let default_user = User{addr:AccountId::default(),expire_time:0,role:0};
+            let user = self.user.get(&Self::env().caller()).unwrap_or(&default_user).clone();
+            assert!(user.addr == AccountId::default());
             let  setting_instance: DaoSetting = ink_env::call::FromAccountId::from_account_id(self.setting_addr);
             let condition =  setting_instance.get_conditions();
             let fee_limit = setting_instance.get_fee_setting();
             if condition == 2 {
                 let mut erc20_instance: Erc20 = ink_env::call::FromAccountId::from_account_id(fee_limit.token);
                 assert_eq!(erc20_instance.balance_of(self.env().caller()) >= fee_limit.fee_limit, true);
-                erc20_instance.transfer_from(Self::env().caller(),AccountId::default(),fee_limit.fee_limit); //todo 修改打入地址
-                self.user.insert(Self::env().caller(),User{addr:Self::env().caller(),expire_time:0,role:0});//todo 修改时间
-            } else if condition == 4 {
-                let  erc20_instance: Erc20 = ink_env::call::FromAccountId::from_account_id(fee_limit.token);
-                let other_limit = setting_instance.get_other_setting();
-                if other_limit.use_token {
-                    assert_eq!(erc20_instance.balance_of(self.env().caller()) >= other_limit.token_balance_limit, true);
-                }
-                if other_limit.use_nft {
-
-                }
+                erc20_instance.transfer_from(Self::env().caller(),AccountId::default(),fee_limit.fee_limit);
                 self.user.insert(Self::env().caller(),User{addr:Self::env().caller(),expire_time:0,role:0});
-            }else if condition == 6 {
-
             }else{
                 self.user.insert(Self::env().caller(),User{addr:Self::env().caller(),expire_time:0,role:0});
             }
@@ -216,9 +207,49 @@ mod dao_users {
         use ink_lang as ink;
         /// We test a simple use case of our contract.
         #[ink::test]
-        fn it_works() {
+        fn test_add_group() {
             let mut dao_users = DaoUsers::new(AccountId::from([0x01; 32]));
             assert!(dao_users.add_group(String::from("test"),true,true,AccountId::from([0x01; 32])) == true);
+        }
+        #[ink::test]
+        fn test_init_user(){
+            let mut dao_users = DaoUsers::new(AccountId::from([0x01; 32]));
+            assert!(dao_users.init_user(AccountId::from([0x01; 32])) == true);
+        }
+        #[ink::test]
+        fn test_list_user(){
+            let mut dao_users = DaoUsers::new(AccountId::from([0x01; 32]));
+            dao_users.init_user(AccountId::from([0x01; 32]));
+            let mut vec = Vec::new();
+            let group = User{addr:AccountId::from([0x01; 32]),expire_time:0,role:0};
+            vec.push(group);
+            let list = dao_users.list_user();
+            assert!(vec[0].addr == list[0].addr);
+        }
+        #[ink::test]
+        fn test_join_group(){
+            let mut dao_users = DaoUsers::new(AccountId::from([0x01; 32]));
+            dao_users.add_group(String::from("test"),true,true,AccountId::from([0x01; 32]));
+            assert!(dao_users.join_group(1) == true);
+        }
+        #[ink::test]
+        fn test_list_group(){
+            let mut dao_users = DaoUsers::new(AccountId::from([0x01; 32]));
+            dao_users.add_group(String::from("test"),true,true,AccountId::from([0x01; 32]));
+            let mut vec = Vec::new();
+            let mut user = BTreeMap::new();
+            user.insert(AccountId::from([0x01; 32]),true);
+            let group = Group{
+                id:1,
+                name:String::from("test"),
+                join_directly:true,
+                is_open:true,
+                users:user.clone(),
+                manager:AccountId::from([0x01; 32])
+            };
+            vec.push(group);
+            let list = dao_users.list_group();
+            assert!(vec[0].id == list[0].id);
         }
     }
 }

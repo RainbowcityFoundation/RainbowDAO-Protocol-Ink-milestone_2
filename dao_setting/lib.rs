@@ -137,9 +137,14 @@ mod dao_setting {
         use ink_lang as ink;
         /// We test a simple use case of our contract.
         #[ink::test]
-        fn it_works() {
+        fn test_get_conditions() {
             let mut dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
             assert!(dao_setting.get_conditions() == 0);
+        }
+        #[ink::test]
+        fn test_get_other_setting(){
+            let mut dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
+            assert!(dao_setting.get_other_setting().token_balance_limit == 0);
         }
     }
 }

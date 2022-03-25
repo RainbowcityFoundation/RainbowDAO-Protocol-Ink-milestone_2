@@ -248,6 +248,7 @@ mod dao_proposal {
         ) -> bool {
             assert!(start_block > self.env().block_number());
             assert!(end_block > start_block);
+            assert!(category < 4);
             let limit = &self.limit;
             if limit.fee_open {
                 let mut erc20_instance: Erc20 = ink_env::call::FromAccountId::from_account_id(limit.fee_token);
@@ -410,7 +411,7 @@ mod dao_proposal {
 
         /// You need to get the hash from  RouteManage,authority_management and RoleManage contract
         #[ink::test]
-        fn init_works() {
+        fn test_proposal() {
             let accounts =
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                     .expect("Cannot get accounts");

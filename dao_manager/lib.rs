@@ -432,5 +432,22 @@ mod dao_manager {
             assert!(dao_manage.join_union_dao(AccountId::from([0x01; 32])) == true);
             assert!(dao_manage.leave_union_dao(AccountId::from([0x01; 32])) == true);
         }
+        #[ink::test]
+        fn test_create_child_dao(){
+            let mut dao_manage = DAOManager::new(AccountId::from([0x01; 32]),AccountId::from([0x01; 32]),1,1,String::from("mother"));
+            assert!(dao_manage.create_child_dao(AccountId::from([0x01; 32]),AccountId::from([0x01; 32])) == true);
+        }
+        #[ink::test]
+        fn test_list_union_dao(){
+            let mut dao_manage = DAOManager::new(AccountId::from([0x01; 32]),AccountId::from([0x01; 32]),1,1,String::from("mother"));
+            let list = dao_manage.list_union_dao();
+            assert!(list.len() == 0);
+        }
+        #[ink::test]
+        fn test_operate_join(){
+            let mut dao_manage = DAOManager::new(AccountId::from([0x01; 32]),AccountId::from([0x01; 32]),1,1,String::from("union"));
+            assert!(dao_manage.operate_join(true) == true);
+        }
+
     }
 }

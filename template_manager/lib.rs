@@ -138,7 +138,7 @@ mod template_manager {
         use ink_lang as ink;
         /// We test a simple use case of our contract.
         #[ink::test]
-        fn it_works() {
+        fn test_add_template() {
             let mut template_manager = TemplateManager::new(AccountId::from([0x01; 32]));
             assert!(template_manager.add_template(
                 String::from("test"),
@@ -149,6 +149,12 @@ mod template_manager {
                 Hash::from([0x99; 32]),
                 Hash::from([0x99; 32])
             ) == true);
+        }
+        #[ink::test]
+        fn test_list_templates() {
+            let template_manager = TemplateManager::new(AccountId::from([0x01; 32]));
+            let list = template_manager.list_templates();
+            assert!(list.len() == 0);
         }
     }
 }
