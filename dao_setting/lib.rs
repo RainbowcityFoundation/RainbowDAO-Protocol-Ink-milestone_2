@@ -135,16 +135,36 @@ mod dao_setting {
 
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
-        /// We test a simple use case of our contract.
         #[ink::test]
         fn test_get_conditions() {
-            let mut dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
+            let dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
             assert!(dao_setting.get_conditions() == 0);
         }
         #[ink::test]
         fn test_get_other_setting(){
-            let mut dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
+            let dao_setting = DaoSetting::new(AccountId::from([0x01; 32]));
             assert!(dao_setting.get_other_setting().token_balance_limit == 0);
+        }
+        #[ink::test]
+        fn test_set_join(){
+            let alice = ink_env::test::default_accounts::<Environment>()
+                .unwrap().alice;
+            let mut dao_setting = DaoSetting::new(alice);
+            let fee_limit = FeeConditions{
+                time_limit:0,
+                fee_limit:0,
+                token:AccountId::default()
+            };
+            let other_limit = OtherConditions{
+                use_token:false,
+                use_nft:false,
+                token:AccountId::default(),
+                token_balance_limit:0,
+                nft:AccountId::default(),
+                nft_balance_limit:0,
+                nft_time_limit:0
+            };
+            assert!(dao_setting.set_join_limit(2,other_limit,fee_limit) == true);
         }
     }
 }

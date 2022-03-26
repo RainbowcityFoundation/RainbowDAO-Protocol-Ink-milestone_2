@@ -45,7 +45,7 @@ mod dao_proposal {
     #[derive(Debug)]
     pub struct Receipt {
         has_voted: bool,
-        support: bool,
+        support: u64,
         votes: u128,
     }
 
@@ -314,33 +314,10 @@ mod dao_proposal {
         /// Set a proposal to cancel
         /// proposal_id:proposal's id
         #[ink(message)]
-        pub fn cancel(&self, proposal_id: u64) -> bool {
-            let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
-            assert!(self.state(proposal_id) != ProposalState::Executed);
+        pub fn cancel(&mut self, proposal_id: u64) -> bool {
+            let proposal = self.proposals.get_mut(&proposal_id).unwrap();
             assert!(proposal.owner == Self::env().caller());
             proposal.canceled = true;
-            true
-        }
-        /// Implement a proposal
-        /// proposal_id:proposal's id
-        #[ink(message)]
-        pub fn exec(&mut self, proposal_id: u64) -> bool {
-            let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
-            assert!(self.state(proposal_id) == ProposalState::Queued);
-            build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
-                .callee(proposal.transaction.callee)
-                .gas_limit(proposal.transaction.gas_limit)
-                .transferred_value(proposal.transaction.transferred_value)
-                .exec_input(
-                    ExecutionInput::new(
-                        proposal.transaction.selector.into()).
-                        push_arg(CallInput(&proposal.transaction.input)
-                    ),
-                )
-                .returns::<()>()
-                .fire()
-                .unwrap();
-            proposal.executed = true;
             true
         }
         /// Vote for the publicity period
@@ -349,7 +326,7 @@ mod dao_proposal {
         pub fn public_vote(&mut self, proposal_id: u64) -> bool {
             let block_number = self.env().block_number();
             let caller = Self::env().caller();
-            let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
+            let proposal = self.proposals.get_mut(&proposal_id).unwrap();
             assert!(proposal.end_block < block_number);
             assert!(proposal.end_block + proposal.publicity_delay > block_number);
             let erc20_instance: Erc20 = ink_env::call::FromAccountId::from_account_id(self.erc20_addr);
@@ -361,24 +338,22 @@ mod dao_proposal {
         /// proposal_id:proposal's id
         /// support:Is it supported
         #[ink(message)]
-        pub fn cast_vote(&mut self, proposal_id: u64, support: bool) -> bool {
+        pub fn cast_vote(&mut self, proposal_id: u64, support: u64) -> bool {
             let caller = Self::env().caller();
             assert!(self.state(proposal_id) == ProposalState::Active);
-            let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
-            let default_receipt = Receipt{has_voted:false, support: false, votes:0};
-            let mut receipts = proposal.receipts.get(&caller).unwrap_or(&default_receipt).clone();
+            assert!(support <= 1);
+            let  proposal = self.proposals.get_mut(&proposal_id).unwrap();
+            let  default_receipt = Receipt{has_voted:false, support: 0, votes:0};
+            let  receipts = proposal.receipts.get(&caller).unwrap_or(&default_receipt);
             assert!(receipts.has_voted == false);
             let erc20_instance: Erc20 = ink_env::call::FromAccountId::from_account_id(self.erc20_addr);
             let votes = erc20_instance.get_current_votes(caller);
-            if support {
+            if support == 1 {
                 proposal.for_votes += votes;
             } else {
                 proposal.against_votes += votes;
             }
-            receipts.has_voted = true;
-            receipts.support = support;
-            receipts.votes = votes;
-
+            proposal.receipts.insert(caller,Receipt{has_voted:true, support: support, votes:votes});
             true
         }
         /// Show all proposals
@@ -409,7 +384,6 @@ mod dao_proposal {
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
 
-        /// You need to get the hash from  RouteManage,authority_management and RoleManage contract
         #[ink::test]
         fn test_proposal() {
             let accounts =
@@ -432,6 +406,28 @@ mod dao_proposal {
             );
             let proposal: Proposal = govnance_dao.get_proposal_by_id(1);
             assert!(proposal.title == String::from("test"));
+        }
+        #[ink::test]
+        fn test_cancel() {
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
+            let mut govnance_dao = DaoProposal::new(
+                AccountId::from([0x01; 32]),
+                AccountId::from([0x01; 32]),
+            );
+            let mut vec = Vec::new();
+            vec.push(1);
+            let select: [u8; 4] = [1, 2, 3, 4];
+            govnance_dao.propose(String::from("test"), String::from("test"),3,4,5, Transaction {
+                callee: accounts.alice,
+                selector: select,
+                input: vec,
+                transferred_value: 0,
+                gas_limit: 1000000 },
+                                 1
+            );
+            assert!(govnance_dao.cancel(1) == true);
         }
     }
 }
