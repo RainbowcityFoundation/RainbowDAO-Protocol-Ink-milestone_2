@@ -208,5 +208,11 @@ mod dao_factory {
             let mut dao_factory = DaoFactory::new();
             assert!(dao_factory.joined_dao(0) == true);
         }
+        #[ink::test]
+        fn test_dao_length() {
+            let dao_factory = DaoFactory::new();
+            let list = dao_factory.list_dao();
+            assert!(list.len() == 0);
+        }
     }
 }
