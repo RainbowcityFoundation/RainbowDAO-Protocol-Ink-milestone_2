@@ -212,7 +212,7 @@ mod dao_proposal {
         /// Set requirements for initiating proposals
         #[ink(message)]
         pub fn set_permission(&mut self,limit:Limit) -> bool {
-            assert!(self.env().caller() != self.creator);
+            assert!(self.env().caller() == self.creator);
             self.limit = limit;
 
             true
@@ -220,7 +220,7 @@ mod dao_proposal {
         /// Set the conditions for successful proposal
         #[ink(message)]
         pub fn set_vote_effective(&mut self,vote_effective:VoteEffective) -> bool {
-            assert!(self.env().caller() != self.creator);
+            assert!(self.env().caller() == self.creator);
             self.vote_effective = vote_effective;
             true
         }
@@ -428,6 +428,44 @@ mod dao_proposal {
                                  1
             );
             assert!(govnance_dao.cancel(1) == true);
+        }
+        #[ink::test]
+        fn test_set_permission() {
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
+            let mut govnance_dao = DaoProposal::new(
+                accounts.alice,
+                accounts.alice,
+            );
+            let limit =  Limit{
+                fee_open:false,
+                fee_number:1,
+                fee_token:AccountId::default()
+            };
+            assert!(govnance_dao.set_permission(limit) == true);
+        }
+        #[ink::test]
+        fn test_set_vote_effective() {
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
+            let mut govnance_dao = DaoProposal::new(
+                accounts.alice,
+                accounts.alice,
+            );
+            let limit =  Limit{
+                fee_open:false,
+                fee_number:1,
+                fee_token:AccountId::default()
+            };
+            let vote_effective = VoteEffective{
+                category:0,
+                vote_scale:0,
+                entrust_scale:0,
+                support_scale:0
+            };
+            assert!(govnance_dao.set_vote_effective(vote_effective) == true);
         }
     }
 }

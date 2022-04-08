@@ -286,7 +286,7 @@ mod dao_manager {
             vault_code_hash:Hash,
             proposal_code_hash:Hash,
         ) -> bool {
-            assert!(self.active == false, "not enough unit to instance contract");
+            assert!(self.active == false);
             self._init_setting(setting_code_hash,version);
             self._init_base(base_code_hash, version,logo,name,desc);
             self._init_erc20(erc20_code_hash, version,total_supply,token_name,symbol,decimals,owner);
